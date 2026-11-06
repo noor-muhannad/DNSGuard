@@ -75,7 +75,8 @@ DNSGuard catching the two attackers while leaving the normal device alone.
 
 A self-contained, browser-only version of the dashboard lives in [`docs/index.html`](docs/index.html). It **replays a
 recorded run of the real system** on simulated traffic — the same engine, models, features and policy — so anyone can
-watch DNSGuard catch the attacks without installing anything.
+watch DNSGuard catch the attacks without installing anything. It is **bilingual (Arabic / English)** with a one-click
+language toggle, responsive, and supports light & dark themes. Add `?lang=en` to the URL to open it in English.
 
 **To publish it as a website:** on GitHub, open **Settings → Pages**, set *Source* to **Deploy from a branch**, choose
 branch `master` and folder **`/docs`**, and save. Your demo goes live at `https://noor-muhannad.github.io/DNSGuard/`.
