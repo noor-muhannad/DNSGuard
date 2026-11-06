@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/license-MIT-2C7A4B)](LICENSE)
 [![Status](https://img.shields.io/badge/demo-runs%20out%20of%20the%20box-0B6B6E)](#quick-start-30-seconds)
 
-### ▶ [**Open the live web demo**](https://<your-username>.github.io/DNSGuard/) &nbsp;·&nbsp; no install, runs in the browser
+### ▶ [**Open the live web demo**](https://noor-muhannad.github.io/DNSGuard/) &nbsp;·&nbsp; no install, runs in the browser
 
 </div>
 
@@ -56,7 +56,7 @@ threshold calibrated on *out-of-group* traffic so false alarms stay low in the r
 ## Quick start (30 seconds)
 
 ```bash
-git clone https://github.com/<your-username>/DNSGuard.git
+git clone https://github.com/noor-muhannad/DNSGuard.git
 cd DNSGuard
 pip install -r requirements.txt
 python3 -m dnsguard_live --bundle dnsguard_bundle_v4.zip --source demo
@@ -78,7 +78,7 @@ recorded run of the real system** on simulated traffic — the same engine, mode
 watch DNSGuard catch the attacks without installing anything.
 
 **To publish it as a website:** on GitHub, open **Settings → Pages**, set *Source* to **Deploy from a branch**, choose
-branch `main` and folder **`/docs`**, and save. Your demo goes live at `https://<your-username>.github.io/DNSGuard/`.
+branch `master` and folder **`/docs`**, and save. Your demo goes live at `https://noor-muhannad.github.io/DNSGuard/`.
 Share that link.
 
 ---
