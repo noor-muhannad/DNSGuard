@@ -11,6 +11,8 @@
 [![License](https://img.shields.io/badge/license-MIT-2C7A4B)](LICENSE)
 [![Status](https://img.shields.io/badge/demo-runs%20out%20of%20the%20box-0B6B6E)](#quick-start-30-seconds)
 
+### ▶ [**Open the live web demo**](https://<your-username>.github.io/DNSGuard/) &nbsp;·&nbsp; no install, runs in the browser
+
 </div>
 
 > **This repository is a working prototype.** It runs end-to-end on a built-in **simulation** so anyone can see it in
@@ -66,6 +68,18 @@ DNSGuard catching the two attackers while leaving the normal device alone.
 > On Windows: `run_demo.bat` · On macOS/Linux: `./run_demo.sh`
 > The character-CNN needs PyTorch; without it the system runs on the tree models only. Install the full stack with
 > `pip install -r requirements-full.txt`.
+
+---
+
+## Live web demo (no install)
+
+A self-contained, browser-only version of the dashboard lives in [`docs/index.html`](docs/index.html). It **replays a
+recorded run of the real system** on simulated traffic — the same engine, models, features and policy — so anyone can
+watch DNSGuard catch the attacks without installing anything.
+
+**To publish it as a website:** on GitHub, open **Settings → Pages**, set *Source* to **Deploy from a branch**, choose
+branch `main` and folder **`/docs`**, and save. Your demo goes live at `https://<your-username>.github.io/DNSGuard/`.
+Share that link.
 
 ---
 
