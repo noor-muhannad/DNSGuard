@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.sqlite
+dnsguard_events.sqlite
+received.csv
+ground_truth.csv
+.dnslab_mark
+*.conf
+.DS_Store
+.venv/
+venv/

@@ -1,0 +1,3 @@
+-r requirements.txt
+torch>=2.0        # character-level CNN (CPU is enough)
+scapy>=2.5        # live capture (sniff:) and pcap replay

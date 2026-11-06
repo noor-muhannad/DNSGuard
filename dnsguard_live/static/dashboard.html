@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DNSGuard · لوحة المراقبة</title>
+<style>
+/* Works offline (lab networks): system fonts only, no external files. */
+:root{
+  --bg:#F3F5F6; --surface:#FFFFFF; --ink:#13212C; --muted:#5A6B7B; --line:#D9E0E5;
+  --accent:#0B6B6E; --accent-soft:#DCEFEE; --gold:#A97C22; --gold-soft:#F5ECD8;
+  --bad:#B23A28; --bad-soft:#F8E1DC; --ok:#2C7A4B; --ok-soft:#E1F1E7;
+  --f:"Segoe UI","Noto Sans Arabic","Noto Naskh Arabic",Tahoma,system-ui,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root{
+  --bg:#0D151C; --surface:#152029; --ink:#E3EAF0; --muted:#98A9B8; --line:#283844;
+  --accent:#55BDB6; --accent-soft:#173533; --gold:#D9AF5B; --gold-soft:#3A3020;
+  --bad:#EE8A72; --bad-soft:#3D221C; --ok:#6CC08F; --ok-soft:#17301F; color-scheme:dark } }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.7}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 48px;display:grid;gap:18px}
+h1,h2{margin:0;line-height:1.4}
+h1{font-size:1.35rem;font-weight:800}
+h2{font-size:1rem;font-weight:700}
+.mono{font-family:var(--mono);direction:ltr;unicode-bidi:isolate}
+.muted{color:var(--muted)}
+.small{font-size:.82rem}
+header{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{position:relative;width:120px;aspect-ratio:900/279}
+.logo span{position:absolute;inset:0;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+.logo .i{--m:url(logo_ink.png);background:var(--ink)} .logo .g{--m:url(logo_gold.png);background:var(--gold)}
+.mode{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.mode button{font:inherit;font-weight:600;border:0;background:transparent;color:var(--muted);padding:8px 16px;cursor:pointer}
+.mode button.on[data-m=monitor]{background:var(--accent);color:var(--surface)}
+.mode button.on[data-m=block]{background:var(--bad);color:var(--surface)}
+.mode button:disabled{cursor:not-allowed;opacity:.5}
+.status{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--muted)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-inline-end:6px}
+.dot.off{background:var(--muted)} .dot.err{background:var(--bad)}
+.banner{border-radius:10px;padding:10px 14px;font-size:.9rem}
+.banner.err{background:var(--bad-soft);color:var(--bad)}
+.banner.info{background:var(--gold-soft);color:var(--gold)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:2px}
+.kpi .v{font-size:1.7rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.kpi .l{font-size:.82rem;color:var(--muted)}
+.kpi.bad .v{color:var(--bad)} .kpi.gold .v{color:var(--gold)}
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:920px){ .grid{grid-template-columns:minmax(0,1fr)} }
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.chart{width:100%;height:150px;display:block}
+.legend{display:flex;gap:16px;font-size:.8rem;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-inline-end:5px;vertical-align:middle}
+.incs{display:grid;gap:10px}
+.inc{border:1px solid var(--line);border-inline-start:4px solid var(--bad);border-radius:10px;padding:12px;display:grid;gap:8px}
+.inc.closed{border-inline-start-color:var(--muted)}
+.inc.blocked{border-inline-start-color:var(--ok)}
+.inc-h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.inc-t{font-weight:700}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:.75rem;padding:.05em .65em;border-radius:99px;background:var(--bad-soft);color:var(--bad);white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--ok)} .tag.mut{background:var(--bg);color:var(--muted)}
+.facts{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:.85rem;color:var(--muted)}
+.facts b{color:var(--ink);font-variant-numeric:tabular-nums}
+.why{font-size:.9rem}
+details summary{cursor:pointer;font-size:.82rem;color:var(--accent)}
+details .ex{margin-top:6px;display:grid;gap:2px;font-size:.78rem;overflow-x:auto}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font:inherit;font-size:.84rem;font-weight:600;border-radius:8px;padding:5px 12px;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.btn.bad{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.empty{color:var(--muted);font-size:.9rem;padding:8px 0}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:start;white-space:nowrap;font-variant-numeric:tabular-nums}
+th{color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+td.q{max-width:340px;overflow:hidden;text-overflow:ellipsis}
+.num-bad{color:var(--bad);font-weight:700}
+.log{font-family:var(--mono);font-size:.76rem;max-height:220px;overflow:auto;display:grid;gap:2px;direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-word}
+.toast{position:fixed;bottom:16px;inset-inline-start:16px;background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.88rem;opacity:0;transition:opacity .2s}
+.toast.on{opacity:1}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{font-size:.8rem;color:var(--muted);border-top:2px solid var(--accent);padding-top:10px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" role="img" aria-label="Noor"><span class="i"></span><span class="g"></span></div>
+      <div><h1>DNSGuard · لوحة المراقبة</h1><div class="status" id="status"></div></div>
+    </div>
+    <div class="mode" role="group" aria-label="وضع التشغيل">
+      <button type="button" data-m="monitor">مراقبة فقط</button>
+      <button type="button" data-m="block">مراقبة + منع</button>
+    </div>
+  </header>
+
+  <div class="banner err" id="err" hidden></div>
+  <div class="banner info" id="info" hidden></div>
+
+  <section class="kpis">
+    <div class="kpi"><span class="v" id="k-q">0</span><span class="l">طلبات DNS تم فحصها</span></div>
+    <div class="kpi"><span class="v" id="k-rate">0</span><span class="l">طلب بالثانية (آخر دقيقة)</span></div>
+    <div class="kpi gold"><span class="v" id="k-a">0</span><span class="l">تنبيهات</span></div>
+    <div class="kpi bad"><span class="v" id="k-i">0</span><span class="l">حوادث نشطة (من <span id="k-it">0</span>)</span></div>
+    <div class="kpi"><span class="v" id="k-b">0</span><span class="l">نطاقات محظورة</span></div>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><h2>حركة الطلبات (آخر 10 دقايق)</h2>
+      <div class="legend"><span><span class="sw" style="background:var(--accent)"></span>طلبات</span><span><span class="sw" style="background:var(--bad)"></span>تنبيهات</span></div></div>
+    <svg class="chart" id="chart" viewBox="0 0 1000 150" preserveAspectRatio="none" role="img" aria-label="عدد الطلبات والتنبيهات كل 5 ثواني"></svg>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <div class="card-h"><h2>الحوادث</h2><a class="small" id="csv" href="api/incidents.csv">تنزيل CSV</a></div>
+      <div class="incs" id="incs"></div>
+    </section>
+    <div style="display:grid;gap:18px;min-width:0">
+      <section class="card">
+        <h2>الأجهزة</h2>
+        <div class="tbl"><table><thead><tr><th>الجهاز</th><th>طلبات</th><th>تنبيهات</th></tr></thead><tbody id="clients"></tbody></table></div>
+      </section>
+      <section class="card">
+        <h2>النطاقات المحظورة</h2>
+        <div id="blocked"></div>
+        <form id="manual" class="acts" autocomplete="off">
+          <input id="mdom" class="mono" placeholder="example.org" aria-label="نطاق" style="flex:1;min-width:140px;font:inherit;font-size:.85rem;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)">
+          <button class="btn bad" type="submit">منع يدوي</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2>آخر التنبيهات</h2>
+    <div class="tbl" style="max-height:420px;overflow-y:auto"><table><thead><tr><th>الوقت</th><th>الجهاز</th><th>الطلب</th><th>الدرجة</th><th>السبب</th></tr></thead><tbody id="alerts"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>سجل النظام</h2>
+    <div class="log" id="log"></div>
+  </section>
+
+  <footer><span>نور مهند أحمد</span><span id="model" class="mono"></span></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const TOKEN = new URLSearchParams(location.search).get('token');
+const H = TOKEN ? {'X-Token': TOKEN} : {};
+if (TOKEN) document.getElementById('csv').href = 'api/incidents.csv?token=' + encodeURIComponent(TOKEN);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf = new Intl.NumberFormat('en-US');
+const tfmt = ts => new Date(ts * 1000).toLocaleTimeString('ar-IQ-u-nu-latn', {hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true});
+const dfmt = ts => new Date(ts * 1000).toLocaleString('ar-IQ-u-nu-latn', {day:'numeric', month:'short', hour:'numeric', minute:'2-digit', hour12:true});
+const bytes = b => b >= 1024 ? (b / 1024).toFixed(1) + ' KB' : Math.round(b) + ' B';
+const dur = s => s < 90 ? Math.round(s) + ' ثانية' : s < 5400 ? Math.round(s / 60) + ' دقيقة' : (s / 3600).toFixed(1) + ' ساعة';
+let S = null, busy = false;
+
+function toast(t){ const e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => e.classList.remove('on'), 2600); }
+async function post(path, body){
+  if (busy) return; busy = true;
+  try {
+    const r = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json', ...H}, body:JSON.stringify(body)});
+    const j = await r.json().catch(() => ({}));
+    toast(j.ok ? 'تم' : ('ما صار: ' + (j.msg || r.status)));
+  } catch (e) { toast('ما وصل الطلب للنظام'); }
+  busy = false; tick();
+}
+
+function chart(series){
+  const svg = $('chart'); if (!series.length){ svg.innerHTML = ''; return; }
+  const n = 120, W = 1000, Hh = 150, bw = W / n, max = Math.max(1, ...series.map(s => s[1]));
+  const last = series[series.length - 1][0], start = last - (n - 1) * 5, by = new Map(series.map(s => [s[0], s]));
+  let h = '';
+  for (let i = 0; i < n; i++){
+    const s = by.get(start + i * 5); if (!s) continue;
+    const x = W - (i + 1) * bw;     // RTL: newest on the left edge reads naturally as "now" at the end
+    const hq = s[1] / max * (Hh - 8), ha = s[2] / max * (Hh - 8);
+    h += `<rect x="${(x + 1).toFixed(1)}" y="${(Hh - hq).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${hq.toFixed(1)}" rx="1.5" fill="var(--accent)" opacity=".55"/>`;
+    if (s[2]) h += `<rect x="${(x + 1).toFixed(1)}" y="${(Hh - Math.max(ha, 3)).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${Math.max(ha, 3).toFixed(1)}" rx="1.5" fill="var(--bad)"/>`;
+  }
+  svg.innerHTML = h;
+}
+
+function incCard(i){
+  const cls = i.blocked ? 'blocked' : (i.active ? '' : 'closed');
+  const tags = [i.active ? '<span class="tag">نشطة</span>' : '<span class="tag mut">متوقفة</span>'];
+  if (i.blocked) tags.push('<span class="tag ok">محظور</span>');
+  const canBlock = S.backend !== 'none';
+  return `<article class="inc ${cls}">
+    <div class="inc-h"><span class="inc-t">#${i.id} · <span class="mono">${esc(i.client)}</span> ← <span class="mono">${esc(i.domain)}</span></span><span class="tags">${tags.join('')}</span></div>
+    <div class="facts"><span><b>${nf.format(i.alerts)}</b> تنبيه</span><span>حجم مسرّب تقريبي <b>${bytes(i.est_bytes)}</b></span>
+      <span>من ${dfmt(i.first)}</span><span>المدة <b>${dur(i.last - i.first)}</b></span><span>أعلى درجة <b>${i.max_score.toFixed(3)}</b></span></div>
+    <div class="why">السبب: ${esc(i.why)}</div>
+    <details><summary>أمثلة من الطلبات</summary><div class="ex mono">${i.examples.map(e => '<span>' + esc(e) + '</span>').join('')}</div></details>
+    <div class="acts">
+      ${i.blocked ? `<button class="btn ok" data-a="unblock" data-d="${esc(i.domain)}">إلغاء المنع</button>`
+                  : `<button class="btn bad" data-a="block" data-d="${esc(i.domain)}" ${canBlock ? '' : 'disabled title="شغّلي البرنامج مع --block-backend"'}>منع النطاق</button>`}
+      <button class="btn" data-a="allow" data-d="${esc(i.domain)}">إنذار كاذب: اسمح بالنطاق</button>
+    </div></article>`;
+}
+
+function render(){
+  const s = S, st = s.stats;
+  $('status').innerHTML = `<span><span class="dot ${s.error ? 'err' : s.source_done ? 'off' : ''}"></span>${s.error ? 'خطأ بالمصدر' : s.source_done ? 'المصدر انتهى' : 'يشتغل'}: <span class="mono">${esc(s.source)}</span></span>`
+    + `<span>المنع: <span class="mono">${esc(s.backend)}</span>${s.dry_run ? ' (تجريبي، بدون تنفيذ)' : ''}</span>`
+    + `<span>CNN: ${s.info.cnn ? 'شغّال' : 'مطفي'}</span>`;
+  document.querySelectorAll('.mode button').forEach(b => { b.classList.toggle('on', b.dataset.m === s.mode); b.disabled = b.dataset.m === 'block' && s.backend === 'none'; b.setAttribute('aria-pressed', b.dataset.m === s.mode); });
+  $('err').hidden = !s.error; $('err').textContent = s.error ? 'المصدر توقف بسبب خطأ: ' + s.error : '';
+  $('info').hidden = !(s.mode === 'block' && s.dry_run);
+  $('info').textContent = 'وضع المنع تجريبي (--dry-run): النظام يسجّل أوامر المنع بس وما ينفذها.';
+  $('k-q').textContent = nf.format(st.queries); $('k-a').textContent = nf.format(st.alerts);
+  $('k-i').textContent = nf.format(s.open_incidents); $('k-it').textContent = nf.format(st.incidents); $('k-b').textContent = nf.format(s.blocked.length);
+  const recent = s.series.slice(-12); $('k-rate').textContent = recent.length ? (recent.reduce((a, b) => a + b[1], 0) / (recent.length * 5)).toFixed(1) : '0';
+  chart(s.series);
+  $('incs').innerHTML = s.incidents.length ? s.incidents.map(incCard).join('') : '<p class="empty">ماكو حوادث لحد هسه. الشبكة طبيعية.</p>';
+  $('clients').innerHTML = s.clients.map(c => `<tr><td class="mono">${esc(c.client)}</td><td>${nf.format(c.queries)}</td><td class="${c.alerts ? 'num-bad' : ''}">${nf.format(c.alerts)}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">—</td></tr>';
+  $('blocked').innerHTML = s.blocked.length ? '<div class="tbl"><table><tbody>' + s.blocked.map(b => `<tr><td class="mono">${esc(b.domain)}</td><td class="small muted">${dfmt(b.at)}</td><td><button class="btn ok" data-a="unblock" data-d="${esc(b.domain)}">إلغاء</button></td></tr>`).join('') + '</tbody></table></div>' : '<p class="empty">ما محظور أي نطاق.</p>';
+  $('alerts').innerHTML = s.alerts.slice(0, 25).map(a => `<tr><td>${tfmt(a.ts)}</td><td class="mono">${esc(a.client)}</td><td class="q mono" title="${esc(a.query)}">${esc(a.query)}</td><td>${a.score.toFixed(3)}</td><td class="small">${esc(a.why)}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">ماكو تنبيهات.</td></tr>';
+  $('log').innerHTML = s.logs.map(l => '<span>' + esc(l) + '</span>').join('');
+  $('model').textContent = `${s.info.family} · ${s.info.model}`;
+}
+
+async function tick(){
+  try {
+    const r = await fetch('api/state', {headers:H, cache:'no-store'});
+    if (r.status === 401){ $('err').hidden = false; $('err').textContent = 'افتحي اللوحة بالرابط اللي بيه ?token=… (يطلع بأول تشغيل البرنامج).'; return; }
+    S = await r.json(); render();
+  } catch (e) { $('err').hidden = false; $('err').textContent = 'انقطع الاتصال بالنظام. تأكدي إن البرنامج بعده شغّال.'; }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (b) post('api/' + b.dataset.a, {domain: b.dataset.d});
+  const m = e.target.closest('.mode button'); if (m && !m.disabled && S && m.dataset.m !== S.mode) post('api/mode', {mode: m.dataset.m});
+});
+$('manual').addEventListener('submit', e => { e.preventDefault(); const d = $('mdom').value.trim(); if (d){ post('api/block', {domain:d}); $('mdom').value = ''; } });
+tick(); setInterval(() => { if (!document.hidden) tick(); }, 2000);
+</script>
+</body>
+</html>
